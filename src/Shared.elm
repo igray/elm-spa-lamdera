@@ -8,8 +8,8 @@ module Shared exposing
     , view
     )
 
-import Html exposing (..)
-import Html.Attributes exposing (class, href, rel)
+import Element as E
+import Element.Region as Region
 import Request exposing (Request)
 import View exposing (View)
 
@@ -27,7 +27,7 @@ type alias Model =
 
 
 init : Request -> Flags -> ( Model, Cmd Msg )
-init _ json =
+init _ _ =
     ( ()
     , Cmd.none
     )
@@ -64,12 +64,9 @@ view :
     -> { page : View msg, toMsg : Msg -> msg }
     -> Model
     -> View msg
-view req { page, toMsg } model =
+view _ { page } _ =
     { title =
         page.title
     , body =
-        [ div [ class "layout" ]
-            [ div [ class "page" ] page.body
-            ]
-        ]
+        E.column [ Region.mainContent, E.width E.fill ] [ page.body ]
     }

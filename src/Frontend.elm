@@ -1,9 +1,10 @@
-module Frontend exposing (..)
+module Frontend exposing (Model, Msg, app)
 
 import Browser
 import Browser.Dom
 import Browser.Navigation as Nav exposing (Key)
 import Effect
+import Element
 import Gen.Model
 import Gen.Pages as Pages
 import Gen.Route as Route
@@ -20,6 +21,15 @@ type alias Model =
     FrontendModel
 
 
+app :
+    { init : Lamdera.Url -> Key -> ( Model, Cmd Msg )
+    , onUrlChange : Url -> Msg
+    , onUrlRequest : Browser.UrlRequest -> Msg
+    , subscriptions : Model -> Sub Msg
+    , update : Msg -> Model -> ( Model, Cmd Msg )
+    , updateFromBackend : ToFrontend -> Model -> ( Model, Cmd Msg )
+    , view : Model -> Browser.Document Msg
+    }
 app =
     Lamdera.frontend
         { init = init
@@ -57,6 +67,7 @@ init url key =
 -- UPDATE
 
 
+scrollPageToTop : Cmd FrontendMsg
 scrollPageToTop =
     Task.perform (\_ -> Noop) (Browser.Dom.setViewport 0 0)
 
@@ -138,13 +149,16 @@ updateFromBackend msg model =
 
 view : Model -> Browser.Document Msg
 view model =
-    Shared.view (Request.create () model.url model.key)
-        { page =
-            Pages.view model.page model.shared model.url model.key
-                |> View.map Page
-        , toMsg = Shared
-        }
-        model.shared
+    model.shared
+        |> Shared.view (Request.create () model.url model.key)
+            { page = Pages.view model.page model.shared model.url model.key |> View.map Page
+            , toMsg = Shared
+            }
+        |> (\{ title, body } ->
+                { title = title
+                , body = [ Element.layout [] body ]
+                }
+           )
 
 
 

@@ -1,12 +1,10 @@
 module Pages.NotFound exposing (view)
 
-import Html exposing (..)
+import Element as E
 
 
-view : { title : String, body : List (Html msg) }
+view : { title : String, body : E.Element msg }
 view =
     { title = "404"
-    , body =
-        [ text "Not found."
-        ]
+    , body = E.text "Not found."
     }
